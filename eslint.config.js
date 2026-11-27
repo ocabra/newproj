@@ -24,4 +24,6 @@ export default tseslint.config(
     },
   },
   { files: ["scripts/**/*.ts"], rules: { "no-console": "off" } },
+  // Testes inspecionam JSON de resposta arbitrário.
+  { files: ["tests/**/*.ts", "e2e/**/*.ts"], rules: { "@typescript-eslint/no-explicit-any": "off" } },
 );

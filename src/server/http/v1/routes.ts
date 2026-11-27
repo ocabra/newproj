@@ -27,24 +27,24 @@ export async function registerV1Routes(
   limits: { apiPerMinute: number; loginPerMinute: number },
 ): Promise<void> {
   const app = root.withTypeProvider<ZodTypeProvider>();
-  app.addHook("onRoute", (route) => {
-    route.config = {
-      ...(route.config as object),
-      rateLimit: { max: limits.apiPerMinute, timeWindow: "1 minute", keyGenerator: apiRateKey },
-    } as never;
-  });
+  // Limite por chave de API (prefixo), declarado em cada rota.
+  const config = { rateLimit: { max: limits.apiPerMinute, timeWindow: "1 minute", keyGenerator: apiRateKey } };
   app.addHook("preValidation", requireApiKey);
   const db = app.db;
 
   app.get(
     "/me",
-    { schema: { tags: ["conta"], summary: "Identidade da chave", response: { 200: S.Me, ...S.errorResponses } } },
+    {
+      config,
+      schema: { tags: ["conta"], summary: "Identidade da chave", response: { 200: S.Me, ...S.errorResponses } },
+    },
     async (req) => me(db, req.principal!),
   );
 
   app.get(
     "/suppliers/:cnpj",
     {
+      config,
       schema: {
         tags: ["carteira"],
         summary: "Consulta fornecedor no catálogo por CNPJ",
@@ -61,6 +61,7 @@ export async function registerV1Routes(
   app.get(
     "/clients",
     {
+      config,
       schema: {
         tags: ["carteira"],
         summary: "Lista clientes da carteira",
@@ -74,6 +75,7 @@ export async function registerV1Routes(
   app.post(
     "/clients",
     {
+      config,
       schema: {
         tags: ["carteira"],
         summary: "Cria cliente",
@@ -90,6 +92,7 @@ export async function registerV1Routes(
   app.get(
     "/sites",
     {
+      config,
       schema: {
         tags: ["carteira"],
         summary: "Lista unidades",
@@ -103,6 +106,7 @@ export async function registerV1Routes(
   app.post(
     "/sites",
     {
+      config,
       schema: {
         tags: ["carteira"],
         summary: "Cria unidade",
@@ -119,6 +123,7 @@ export async function registerV1Routes(
   app.get(
     "/contracts",
     {
+      config,
       schema: {
         tags: ["carteira"],
         summary: "Lista contratos",
@@ -132,6 +137,7 @@ export async function registerV1Routes(
   app.post(
     "/contracts",
     {
+      config,
       schema: {
         tags: ["carteira"],
         summary: "Cria contrato (idempotente com Idempotency-Key)",
@@ -155,6 +161,7 @@ export async function registerV1Routes(
   app.get(
     "/contracts/:id",
     {
+      config,
       schema: {
         tags: ["carteira"],
         summary: "Detalhe do contrato",
@@ -168,6 +175,7 @@ export async function registerV1Routes(
   app.patch(
     "/contracts/:id",
     {
+      config,
       schema: {
         tags: ["carteira"],
         summary: "Altera contrato",
@@ -182,6 +190,7 @@ export async function registerV1Routes(
   app.delete(
     "/contracts/:id",
     {
+      config,
       schema: {
         tags: ["carteira"],
         summary: "Exclui contrato (lógica; deixa de gerar e exibir alertas)",
@@ -198,6 +207,7 @@ export async function registerV1Routes(
   app.get(
     "/contracts/:id/explanation",
     {
+      config,
       schema: {
         tags: ["alertas"],
         summary: "Por que este contrato tem (ou não tem) alerta",
@@ -211,6 +221,7 @@ export async function registerV1Routes(
   app.get(
     "/alerts",
     {
+      config,
       schema: {
         tags: ["alertas"],
         summary: "Lista alertas da carteira (mais recentes primeiro)",
@@ -224,6 +235,7 @@ export async function registerV1Routes(
   app.get(
     "/alerts/:id",
     {
+      config,
       schema: {
         tags: ["alertas"],
         summary: "Detalhe do alerta, com fonte, razões, exposição e resposta do fornecedor",
@@ -237,6 +249,7 @@ export async function registerV1Routes(
   app.patch(
     "/alerts/:id",
     {
+      config,
       schema: {
         tags: ["alertas"],
         summary: "Muda o status do alerta",

@@ -190,7 +190,7 @@ export const contracts = pgTable(
     guaranteeType: guaranteeType("guarantee_type").notNull().default("none"),
     notes: text("notes"),
     createdAt: createdAt(),
-    updatedAt: createdAt(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, precision: 3 }).notNull().defaultNow(),
     deletedAt: tsz("deleted_at"),
   },
   (t) => [

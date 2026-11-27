@@ -1,0 +1,2401 @@
+# GERADO por scripts/gen-openapi.ts a partir de src/server/http/v1/schemas.ts — não editar à mão.
+openapi: 3.1.0
+info:
+  title: Radar de Fornecedores — API B2B
+  version: 1.0.0
+  description: >-
+    API B2B do protótipo **Radar de Fornecedores** (GO CONDICIONAL; dados
+    sintéticos).
+
+
+    Mostra eventos públicos de crédito de fornecedores de energia, curados com
+    fonte, cruzados com os contratos da
+
+    carteira da organização autenticada. **Não** é nota de crédito, não prevê
+    falência, não tem relação oficial com
+
+    CCEE, ANEEL ou Abraceel, e não negocia nem representa ninguém.
+
+
+    Autenticação: `Authorization: Bearer rdf_<prefixo>_<segredo>` (chave gerada
+    no portal, exibida uma única vez).
+
+    Escopos: `portfolio:read`, `portfolio:write`, `alerts:read`, `alerts:write`.
+
+    Paginação por cursor: `limit` (1–100) e `cursor` (opaco, devolvido em
+    `next_cursor`).
+
+    Idempotência: `POST /contracts` aceita o cabeçalho `Idempotency-Key`.
+
+    Limite de taxa: 120 requisições/min por chave (`429` com `Retry-After`).
+components:
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: bearer
+      bearerFormat: rdf_<prefixo>_<segredo>
+  schemas:
+    ErrorInput:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details: {}
+          required:
+            - code
+            - message
+      required:
+        - error
+    MeInput:
+      type: object
+      properties:
+        user:
+          anyOf:
+            - type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                name:
+                  type: string
+                email:
+                  type: string
+              required:
+                - id
+                - name
+                - email
+            - type: "null"
+        role:
+          type:
+            - string
+            - "null"
+        via:
+          type: string
+          enum:
+            - session
+            - api_key
+        scopes:
+          anyOf:
+            - type: array
+              items:
+                type: string
+            - type: "null"
+        organization:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            name:
+              type: string
+            type:
+              type: string
+              enum:
+                - manager
+                - consumer
+                - supplier
+                - operator
+            status:
+              type: string
+              enum:
+                - pending
+                - approved
+                - rejected
+                - suspended
+            cnpj:
+              type:
+                - string
+                - "null"
+          required:
+            - id
+            - name
+            - type
+            - status
+            - cnpj
+      required:
+        - user
+        - role
+        - via
+        - scopes
+        - organization
+    SupplierInput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        cnpj:
+          type: string
+          pattern: ^\d{14}$
+        legal_name:
+          type: string
+      required:
+        - id
+        - cnpj
+        - legal_name
+    ClientInput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        legal_name:
+          type: string
+        cnpj:
+          type: string
+          pattern: ^\d{14}$
+        created_at:
+          type: string
+          description: ISO 8601 em UTC
+      required:
+        - id
+        - legal_name
+        - cnpj
+        - created_at
+    SiteInput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        client_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        name:
+          type: string
+        submarket:
+          type: string
+          enum:
+            - SE_CO
+            - S
+            - NE
+            - N
+          description: "Submercado: SE_CO, S, NE ou N"
+        distributor:
+          type:
+            - string
+            - "null"
+        created_at:
+          type: string
+          description: ISO 8601 em UTC
+      required:
+        - id
+        - client_id
+        - name
+        - submarket
+        - distributor
+        - created_at
+    ContractInput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        site_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        client_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        supplier:
+          $ref: "#/components/schemas/SupplierInput"
+        start_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        end_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        volume_mwm:
+          type: number
+        price_brl_per_mwh:
+          type: number
+        guarantee_brl:
+          type:
+            - number
+            - "null"
+        guarantee_type:
+          type: string
+          enum:
+            - none
+            - bank_guarantee
+            - insurance
+            - deposit
+            - other
+        notes:
+          type:
+            - string
+            - "null"
+        created_at:
+          type: string
+          description: ISO 8601 em UTC
+        updated_at:
+          type: string
+          description: ISO 8601 em UTC
+        warnings:
+          type: array
+          items:
+            type: string
+          description: "Avisos não bloqueantes, ex.: possível duplicidade"
+      required:
+        - id
+        - site_id
+        - client_id
+        - supplier
+        - start_date
+        - end_date
+        - volume_mwm
+        - price_brl_per_mwh
+        - guarantee_brl
+        - guarantee_type
+        - notes
+        - created_at
+        - updated_at
+        - warnings
+    ContractCreateInput:
+      type: object
+      properties:
+        site_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        supplier_cnpj:
+          type: string
+          minLength: 14
+          maxLength: 18
+        supplier_name:
+          description: Obrigatório se o fornecedor não estiver no catálogo
+          type: string
+          minLength: 2
+          maxLength: 200
+        start_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        end_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+          description: Inclusivo
+        volume_mwm:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 1000
+          description: Volume contratado em MW médio (MWm), não MWh
+        price_brl_per_mwh:
+          type: number
+          minimum: 0
+          maximum: 5000
+        guarantee_brl:
+          anyOf:
+            - type: number
+              minimum: 0
+            - type: "null"
+        guarantee_type:
+          type: string
+          enum:
+            - none
+            - bank_guarantee
+            - insurance
+            - deposit
+            - other
+        notes:
+          anyOf:
+            - type: string
+              maxLength: 2000
+            - type: "null"
+        confirm_overlap:
+          description: Confirma a criação mesmo havendo contrato sobreposto na mesma
+            unidade e fornecedor
+          type: boolean
+      required:
+        - site_id
+        - supplier_cnpj
+        - start_date
+        - end_date
+        - volume_mwm
+        - price_brl_per_mwh
+    ContractPatchInput:
+      type: object
+      properties:
+        start_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        end_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        volume_mwm:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 1000
+          description: Volume contratado em MW médio (MWm), não MWh
+        price_brl_per_mwh:
+          type: number
+          minimum: 0
+          maximum: 5000
+        guarantee_brl:
+          anyOf:
+            - type: number
+              minimum: 0
+            - type: "null"
+        guarantee_type:
+          type: string
+          enum:
+            - none
+            - bank_guarantee
+            - insurance
+            - deposit
+            - other
+        notes:
+          anyOf:
+            - type: string
+              maxLength: 2000
+            - type: "null"
+    ExplanationInput:
+      type: object
+      properties:
+        contract_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        rule_version:
+          type: string
+        summary:
+          type: string
+        evaluated_events:
+          type: array
+          items:
+            type: object
+            properties:
+              event_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              event_type:
+                type: string
+                enum:
+                  - judicial_recovery_filed
+                  - bankruptcy_filed
+                  - ccee_disconnection
+                  - retailer_disqualification
+                  - mcp_default_listed
+                  - extrajudicial_recovery
+                  - balanced_operation
+                  - leverage_band_worsened
+                  - protest_relevant
+                  - leverage_band_improved
+                  - governance_change
+                  - other_public_notice
+              event_date:
+                type: string
+                pattern: ^\d{4}-\d{2}-\d{2}$
+              supplier_cnpj:
+                type: string
+                pattern: ^\d{14}$
+              match:
+                type: boolean
+              severity:
+                type: string
+                enum:
+                  - critical
+                  - high
+                  - info
+              checks:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    rule:
+                      type: string
+                      enum:
+                        - C1
+                        - C2
+                        - C3
+                        - C4
+                    passed:
+                      type: boolean
+                    reason:
+                      type: string
+                    detail:
+                      type: string
+                  required:
+                    - rule
+                    - passed
+                    - reason
+                    - detail
+            required:
+              - event_id
+              - event_type
+              - event_date
+              - supplier_cnpj
+              - match
+              - severity
+              - checks
+      required:
+        - contract_id
+        - rule_version
+        - summary
+        - evaluated_events
+    ExposureInput:
+      type: object
+      properties:
+        as_of:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        remaining_hours:
+          type: number
+        remaining_energy_mwh:
+          type: number
+        reference_price_brl_per_mwh:
+          type: number
+        reference_price_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        reference_price_source:
+          type: string
+        reference_price_url:
+          type: string
+        contract_price_brl_per_mwh:
+          type: number
+        replacement_cost_brl:
+          type: number
+        guarantee_brl:
+          type:
+            - number
+            - "null"
+        guarantee_coverage_pct:
+          type:
+            - number
+            - "null"
+        formula:
+          type: string
+      required:
+        - as_of
+        - remaining_hours
+        - remaining_energy_mwh
+        - reference_price_brl_per_mwh
+        - reference_price_date
+        - reference_price_source
+        - reference_price_url
+        - contract_price_brl_per_mwh
+        - replacement_cost_brl
+        - guarantee_brl
+        - guarantee_coverage_pct
+        - formula
+    EventInput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        type:
+          type: string
+          enum:
+            - judicial_recovery_filed
+            - bankruptcy_filed
+            - ccee_disconnection
+            - retailer_disqualification
+            - mcp_default_listed
+            - extrajudicial_recovery
+            - balanced_operation
+            - leverage_band_worsened
+            - protest_relevant
+            - leverage_band_improved
+            - governance_change
+            - other_public_notice
+        type_label:
+          type: string
+        severity:
+          type: string
+          enum:
+            - critical
+            - high
+            - info
+        scope:
+          type: string
+          enum:
+            - entity
+            - group
+        event_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        source_published_on:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        source_name:
+          type: string
+        source_url:
+          type: string
+        summary:
+          type: string
+        caveat:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+          enum:
+            - draft
+            - published
+            - retracted
+        supplier:
+          type: object
+          properties:
+            cnpj:
+              type: string
+              pattern: ^\d{14}$
+            legal_name:
+              type: string
+          required:
+            - cnpj
+            - legal_name
+        supplier_responses:
+          type: array
+          items:
+            type: object
+            properties:
+              body:
+                type: string
+              created_at:
+                type: string
+                description: ISO 8601 em UTC
+            required:
+              - body
+              - created_at
+      required:
+        - id
+        - type
+        - type_label
+        - severity
+        - scope
+        - event_date
+        - source_published_on
+        - source_name
+        - source_url
+        - summary
+        - caveat
+        - status
+        - supplier
+        - supplier_responses
+    AlertInput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        severity:
+          type: string
+          enum:
+            - critical
+            - high
+            - info
+        status:
+          type: string
+          enum:
+            - open
+            - acknowledged
+            - resolved
+            - retracted
+        rule_version:
+          type: string
+        reasons:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          description: ISO 8601 em UTC
+        status_changed_at:
+          anyOf:
+            - type: string
+              description: ISO 8601 em UTC
+            - type: "null"
+        contract:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            client_id:
+              type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            client_legal_name:
+              type: string
+            site_name:
+              type: string
+            start_date:
+              type: string
+              pattern: ^\d{4}-\d{2}-\d{2}$
+            end_date:
+              type: string
+              pattern: ^\d{4}-\d{2}-\d{2}$
+            volume_mwm:
+              type: number
+            supplier:
+              type: object
+              properties:
+                cnpj:
+                  type: string
+                  pattern: ^\d{14}$
+                legal_name:
+                  type: string
+              required:
+                - cnpj
+                - legal_name
+              description: Fornecedor do contrato da carteira
+          required:
+            - id
+            - client_id
+            - client_legal_name
+            - site_name
+            - start_date
+            - end_date
+            - volume_mwm
+            - supplier
+        event:
+          description: Evento público; o fornecedor do evento pode ser a matriz/grupo do
+            fornecedor do contrato
+          $ref: "#/components/schemas/EventInput"
+        exposure:
+          anyOf:
+            - $ref: "#/components/schemas/ExposureInput"
+            - type: "null"
+        exposure_reason:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - severity
+        - status
+        - rule_version
+        - reasons
+        - created_at
+        - status_changed_at
+        - contract
+        - event
+        - exposure
+        - exposure_reason
+    AlertPatchInput:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - open
+            - acknowledged
+            - resolved
+      required:
+        - status
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details: {}
+          required:
+            - code
+            - message
+          additionalProperties: false
+      required:
+        - error
+      additionalProperties: false
+    Me:
+      type: object
+      properties:
+        user:
+          anyOf:
+            - type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                name:
+                  type: string
+                email:
+                  type: string
+              required:
+                - id
+                - name
+                - email
+              additionalProperties: false
+            - type: "null"
+        role:
+          type:
+            - string
+            - "null"
+        via:
+          type: string
+          enum:
+            - session
+            - api_key
+        scopes:
+          anyOf:
+            - type: array
+              items:
+                type: string
+            - type: "null"
+        organization:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            name:
+              type: string
+            type:
+              type: string
+              enum:
+                - manager
+                - consumer
+                - supplier
+                - operator
+            status:
+              type: string
+              enum:
+                - pending
+                - approved
+                - rejected
+                - suspended
+            cnpj:
+              type:
+                - string
+                - "null"
+          required:
+            - id
+            - name
+            - type
+            - status
+            - cnpj
+          additionalProperties: false
+      required:
+        - user
+        - role
+        - via
+        - scopes
+        - organization
+      additionalProperties: false
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        cnpj:
+          type: string
+          pattern: ^\d{14}$
+        legal_name:
+          type: string
+      required:
+        - id
+        - cnpj
+        - legal_name
+      additionalProperties: false
+    Client:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        legal_name:
+          type: string
+        cnpj:
+          type: string
+          pattern: ^\d{14}$
+        created_at:
+          type: string
+          description: ISO 8601 em UTC
+      required:
+        - id
+        - legal_name
+        - cnpj
+        - created_at
+      additionalProperties: false
+    Site:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        client_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        name:
+          type: string
+        submarket:
+          type: string
+          enum:
+            - SE_CO
+            - S
+            - NE
+            - N
+          description: "Submercado: SE_CO, S, NE ou N"
+        distributor:
+          type:
+            - string
+            - "null"
+        created_at:
+          type: string
+          description: ISO 8601 em UTC
+      required:
+        - id
+        - client_id
+        - name
+        - submarket
+        - distributor
+        - created_at
+      additionalProperties: false
+    Contract:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        site_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        client_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        supplier:
+          $ref: "#/components/schemas/Supplier"
+        start_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        end_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        volume_mwm:
+          type: number
+        price_brl_per_mwh:
+          type: number
+        guarantee_brl:
+          type:
+            - number
+            - "null"
+        guarantee_type:
+          type: string
+          enum:
+            - none
+            - bank_guarantee
+            - insurance
+            - deposit
+            - other
+        notes:
+          type:
+            - string
+            - "null"
+        created_at:
+          type: string
+          description: ISO 8601 em UTC
+        updated_at:
+          type: string
+          description: ISO 8601 em UTC
+        warnings:
+          type: array
+          items:
+            type: string
+          description: "Avisos não bloqueantes, ex.: possível duplicidade"
+      required:
+        - id
+        - site_id
+        - client_id
+        - supplier
+        - start_date
+        - end_date
+        - volume_mwm
+        - price_brl_per_mwh
+        - guarantee_brl
+        - guarantee_type
+        - notes
+        - created_at
+        - updated_at
+        - warnings
+      additionalProperties: false
+    ContractCreate:
+      type: object
+      properties:
+        site_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        supplier_cnpj:
+          type: string
+          minLength: 14
+          maxLength: 18
+        supplier_name:
+          description: Obrigatório se o fornecedor não estiver no catálogo
+          type: string
+          minLength: 2
+          maxLength: 200
+        start_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        end_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+          description: Inclusivo
+        volume_mwm:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 1000
+          description: Volume contratado em MW médio (MWm), não MWh
+        price_brl_per_mwh:
+          type: number
+          minimum: 0
+          maximum: 5000
+        guarantee_brl:
+          anyOf:
+            - type: number
+              minimum: 0
+            - type: "null"
+        guarantee_type:
+          type: string
+          enum:
+            - none
+            - bank_guarantee
+            - insurance
+            - deposit
+            - other
+        notes:
+          anyOf:
+            - type: string
+              maxLength: 2000
+            - type: "null"
+        confirm_overlap:
+          description: Confirma a criação mesmo havendo contrato sobreposto na mesma
+            unidade e fornecedor
+          type: boolean
+      required:
+        - site_id
+        - supplier_cnpj
+        - start_date
+        - end_date
+        - volume_mwm
+        - price_brl_per_mwh
+      additionalProperties: false
+    ContractPatch:
+      type: object
+      properties:
+        start_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        end_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        volume_mwm:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 1000
+          description: Volume contratado em MW médio (MWm), não MWh
+        price_brl_per_mwh:
+          type: number
+          minimum: 0
+          maximum: 5000
+        guarantee_brl:
+          anyOf:
+            - type: number
+              minimum: 0
+            - type: "null"
+        guarantee_type:
+          type: string
+          enum:
+            - none
+            - bank_guarantee
+            - insurance
+            - deposit
+            - other
+        notes:
+          anyOf:
+            - type: string
+              maxLength: 2000
+            - type: "null"
+      additionalProperties: false
+    Explanation:
+      type: object
+      properties:
+        contract_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        rule_version:
+          type: string
+        summary:
+          type: string
+        evaluated_events:
+          type: array
+          items:
+            type: object
+            properties:
+              event_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              event_type:
+                type: string
+                enum:
+                  - judicial_recovery_filed
+                  - bankruptcy_filed
+                  - ccee_disconnection
+                  - retailer_disqualification
+                  - mcp_default_listed
+                  - extrajudicial_recovery
+                  - balanced_operation
+                  - leverage_band_worsened
+                  - protest_relevant
+                  - leverage_band_improved
+                  - governance_change
+                  - other_public_notice
+              event_date:
+                type: string
+                pattern: ^\d{4}-\d{2}-\d{2}$
+              supplier_cnpj:
+                type: string
+                pattern: ^\d{14}$
+              match:
+                type: boolean
+              severity:
+                type: string
+                enum:
+                  - critical
+                  - high
+                  - info
+              checks:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    rule:
+                      type: string
+                      enum:
+                        - C1
+                        - C2
+                        - C3
+                        - C4
+                    passed:
+                      type: boolean
+                    reason:
+                      type: string
+                    detail:
+                      type: string
+                  required:
+                    - rule
+                    - passed
+                    - reason
+                    - detail
+                  additionalProperties: false
+            required:
+              - event_id
+              - event_type
+              - event_date
+              - supplier_cnpj
+              - match
+              - severity
+              - checks
+            additionalProperties: false
+      required:
+        - contract_id
+        - rule_version
+        - summary
+        - evaluated_events
+      additionalProperties: false
+    Exposure:
+      type: object
+      properties:
+        as_of:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        remaining_hours:
+          type: number
+        remaining_energy_mwh:
+          type: number
+        reference_price_brl_per_mwh:
+          type: number
+        reference_price_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        reference_price_source:
+          type: string
+        reference_price_url:
+          type: string
+        contract_price_brl_per_mwh:
+          type: number
+        replacement_cost_brl:
+          type: number
+        guarantee_brl:
+          type:
+            - number
+            - "null"
+        guarantee_coverage_pct:
+          type:
+            - number
+            - "null"
+        formula:
+          type: string
+      required:
+        - as_of
+        - remaining_hours
+        - remaining_energy_mwh
+        - reference_price_brl_per_mwh
+        - reference_price_date
+        - reference_price_source
+        - reference_price_url
+        - contract_price_brl_per_mwh
+        - replacement_cost_brl
+        - guarantee_brl
+        - guarantee_coverage_pct
+        - formula
+      additionalProperties: false
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        type:
+          type: string
+          enum:
+            - judicial_recovery_filed
+            - bankruptcy_filed
+            - ccee_disconnection
+            - retailer_disqualification
+            - mcp_default_listed
+            - extrajudicial_recovery
+            - balanced_operation
+            - leverage_band_worsened
+            - protest_relevant
+            - leverage_band_improved
+            - governance_change
+            - other_public_notice
+        type_label:
+          type: string
+        severity:
+          type: string
+          enum:
+            - critical
+            - high
+            - info
+        scope:
+          type: string
+          enum:
+            - entity
+            - group
+        event_date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        source_published_on:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        source_name:
+          type: string
+        source_url:
+          type: string
+        summary:
+          type: string
+        caveat:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+          enum:
+            - draft
+            - published
+            - retracted
+        supplier:
+          type: object
+          properties:
+            cnpj:
+              type: string
+              pattern: ^\d{14}$
+            legal_name:
+              type: string
+          required:
+            - cnpj
+            - legal_name
+          additionalProperties: false
+        supplier_responses:
+          type: array
+          items:
+            type: object
+            properties:
+              body:
+                type: string
+              created_at:
+                type: string
+                description: ISO 8601 em UTC
+            required:
+              - body
+              - created_at
+            additionalProperties: false
+      required:
+        - id
+        - type
+        - type_label
+        - severity
+        - scope
+        - event_date
+        - source_published_on
+        - source_name
+        - source_url
+        - summary
+        - caveat
+        - status
+        - supplier
+        - supplier_responses
+      additionalProperties: false
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        severity:
+          type: string
+          enum:
+            - critical
+            - high
+            - info
+        status:
+          type: string
+          enum:
+            - open
+            - acknowledged
+            - resolved
+            - retracted
+        rule_version:
+          type: string
+        reasons:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          description: ISO 8601 em UTC
+        status_changed_at:
+          anyOf:
+            - type: string
+              description: ISO 8601 em UTC
+            - type: "null"
+        contract:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            client_id:
+              type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            client_legal_name:
+              type: string
+            site_name:
+              type: string
+            start_date:
+              type: string
+              pattern: ^\d{4}-\d{2}-\d{2}$
+            end_date:
+              type: string
+              pattern: ^\d{4}-\d{2}-\d{2}$
+            volume_mwm:
+              type: number
+            supplier:
+              type: object
+              properties:
+                cnpj:
+                  type: string
+                  pattern: ^\d{14}$
+                legal_name:
+                  type: string
+              required:
+                - cnpj
+                - legal_name
+              additionalProperties: false
+              description: Fornecedor do contrato da carteira
+          required:
+            - id
+            - client_id
+            - client_legal_name
+            - site_name
+            - start_date
+            - end_date
+            - volume_mwm
+            - supplier
+          additionalProperties: false
+        event:
+          description: Evento público; o fornecedor do evento pode ser a matriz/grupo do
+            fornecedor do contrato
+          $ref: "#/components/schemas/Event"
+        exposure:
+          anyOf:
+            - $ref: "#/components/schemas/Exposure"
+            - type: "null"
+        exposure_reason:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - severity
+        - status
+        - rule_version
+        - reasons
+        - created_at
+        - status_changed_at
+        - contract
+        - event
+        - exposure
+        - exposure_reason
+      additionalProperties: false
+    AlertPatch:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - open
+            - acknowledged
+            - resolved
+      required:
+        - status
+      additionalProperties: false
+paths:
+  /api/v1/me:
+    get:
+      summary: Identidade da chave
+      tags:
+        - conta
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Me"
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/suppliers/{cnpj}:
+    get:
+      summary: Consulta fornecedor no catálogo por CNPJ
+      tags:
+        - carteira
+      parameters:
+        - schema:
+            type: string
+            pattern: ^\d{14}$
+          in: path
+          name: cnpj
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supplier"
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/clients:
+    get:
+      summary: Lista clientes da carteira
+      tags:
+        - carteira
+      parameters:
+        - schema:
+            default: 50
+            type: integer
+            minimum: 1
+            maximum: 100
+          in: query
+          name: limit
+          required: false
+        - schema:
+            type: string
+            maxLength: 200
+          in: query
+          name: cursor
+          required: false
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Client"
+                  next_cursor:
+                    type:
+                      - string
+                      - "null"
+                required:
+                  - data
+                  - next_cursor
+                additionalProperties: false
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Cria cliente
+      tags:
+        - carteira
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                legal_name:
+                  type: string
+                  minLength: 2
+                  maxLength: 200
+                cnpj:
+                  type: string
+                  minLength: 14
+                  maxLength: 18
+                  description: Aceita com ou sem pontuação; validado por dígito verificador
+              required:
+                - legal_name
+                - cnpj
+      responses:
+        "201":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/sites:
+    get:
+      summary: Lista unidades
+      tags:
+        - carteira
+      parameters:
+        - schema:
+            default: 50
+            type: integer
+            minimum: 1
+            maximum: 100
+          in: query
+          name: limit
+          required: false
+        - schema:
+            type: string
+            maxLength: 200
+          in: query
+          name: cursor
+          required: false
+        - schema:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          in: query
+          name: client_id
+          required: false
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Site"
+                  next_cursor:
+                    type:
+                      - string
+                      - "null"
+                required:
+                  - data
+                  - next_cursor
+                additionalProperties: false
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Cria unidade
+      tags:
+        - carteira
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                submarket:
+                  type: string
+                  enum:
+                    - SE_CO
+                    - S
+                    - NE
+                    - N
+                  description: "Submercado: SE_CO, S, NE ou N"
+                distributor:
+                  type: string
+                  maxLength: 200
+              required:
+                - client_id
+                - name
+                - submarket
+      responses:
+        "201":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/contracts:
+    get:
+      summary: Lista contratos
+      tags:
+        - carteira
+      parameters:
+        - schema:
+            default: 50
+            type: integer
+            minimum: 1
+            maximum: 100
+          in: query
+          name: limit
+          required: false
+        - schema:
+            type: string
+            maxLength: 200
+          in: query
+          name: cursor
+          required: false
+        - schema:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          in: query
+          name: client_id
+          required: false
+        - schema:
+            type: string
+            pattern: ^\d{14}$
+          in: query
+          name: supplier_cnpj
+          required: false
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Contract"
+                  next_cursor:
+                    type:
+                      - string
+                      - "null"
+                required:
+                  - data
+                  - next_cursor
+                additionalProperties: false
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Cria contrato (idempotente com Idempotency-Key)
+      tags:
+        - carteira
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContractCreateInput"
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: idempotency-key
+          required: false
+      responses:
+        "201":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/contracts/{id}:
+    get:
+      summary: Detalhe do contrato
+      tags:
+        - carteira
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      summary: Altera contrato
+      tags:
+        - carteira
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContractPatchInput"
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Exclui contrato (lógica; deixa de gerar e exibir alertas)
+      tags:
+        - carteira
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          in: path
+          name: id
+          required: true
+      responses:
+        "204":
+          description: Excluído
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/contracts/{id}/explanation:
+    get:
+      summary: Por que este contrato tem (ou não tem) alerta
+      tags:
+        - alertas
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Explanation"
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/alerts:
+    get:
+      summary: Lista alertas da carteira (mais recentes primeiro)
+      tags:
+        - alertas
+      parameters:
+        - schema:
+            default: 50
+            type: integer
+            minimum: 1
+            maximum: 100
+          in: query
+          name: limit
+          required: false
+        - schema:
+            type: string
+            maxLength: 200
+          in: query
+          name: cursor
+          required: false
+        - schema:
+            type: string
+            enum:
+              - open
+              - acknowledged
+              - resolved
+              - retracted
+          in: query
+          name: status
+          required: false
+        - schema:
+            type: string
+            enum:
+              - critical
+              - high
+              - info
+          in: query
+          name: severity
+          required: false
+        - schema:
+            type: string
+            pattern: ^\d{14}$
+          in: query
+          name: supplier_cnpj
+          required: false
+          description: CNPJ do fornecedor do contrato
+        - schema:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          in: query
+          name: client_id
+          required: false
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Alert"
+                  next_cursor:
+                    type:
+                      - string
+                      - "null"
+                required:
+                  - data
+                  - next_cursor
+                additionalProperties: false
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/alerts/{id}:
+    get:
+      summary: Detalhe do alerta, com fonte, razões, exposição e resposta do fornecedor
+      tags:
+        - alertas
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      summary: Muda o status do alerta
+      tags:
+        - alertas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AlertPatchInput"
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+        "401":
+          description: Credencial ausente ou inválida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Sem escopo/permissão, ou organização não aprovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Não encontrado (inclui recursos de outra organização)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validação falhou
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Limite de taxa excedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+servers:
+  - url: /
+security:
+  - apiKey: []

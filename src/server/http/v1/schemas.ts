@@ -252,8 +252,11 @@ export const Alert = z
       start_date: date,
       end_date: date,
       volume_mwm: z.number(),
+      supplier: z.object({ cnpj, legal_name: z.string() }).describe("Fornecedor do contrato da carteira"),
     }),
-    event: PublicEvent,
+    event: PublicEvent.describe(
+      "Evento público; o fornecedor do evento pode ser a matriz/grupo do fornecedor do contrato",
+    ),
     exposure: Exposure.nullable(),
     exposure_reason: z.string().nullable(),
   })
@@ -262,7 +265,7 @@ export const Alert = z
 export const AlertListQuery = PageQuery.extend({
   status: AlertStatus.optional(),
   severity: SeverityE.optional(),
-  supplier_cnpj: cnpj.optional(),
+  supplier_cnpj: cnpj.optional().describe("CNPJ do fornecedor do contrato"),
   client_id: uuid.optional(),
 });
 

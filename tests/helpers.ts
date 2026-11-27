@@ -23,7 +23,7 @@ export async function setup(rateLimits = { apiPerMinute: 1000, loginPerMinute: 1
     truncate table idempotency_keys, audit_events, api_keys, imports, leverage_observations, reference_prices,
       supplier_responses, alerts, events, contracts, sites, clients, data_mandates, invitations, sessions,
       memberships, users, organizations, suppliers restart identity cascade`);
-  const app = await buildApp({ db, config, rateLimits });
+  const app = await buildApp({ db, config, rateLimits, logger: process.env.TEST_LOG === "1" });
   await app.ready();
   return {
     app,

@@ -9,6 +9,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 import {
   hasZodFastifySchemaValidationErrors,
   jsonSchemaTransform,
+  jsonSchemaTransformObject,
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
@@ -99,6 +100,7 @@ export async function buildApp(opts: BuildOptions): Promise<FastifyInstance> {
       security: [{ apiKey: [] }],
     },
     transform: jsonSchemaTransform,
+    transformObject: jsonSchemaTransformObject,
   });
   await app.register(swaggerUi, { routePrefix: "/api/docs" });
 

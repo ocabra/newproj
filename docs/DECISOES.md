@@ -109,3 +109,17 @@
 - **Senha mínima de 10 caracteres, sem regras de composição:** segue a orientação NIST 800-63B (comprimento acima de complexidade).
 - **Aprovação de organização fornecedora vincula ao catálogo pelo CNPJ declarado:** se o CNPJ já existe no catálogo, usa esse registro; se não, cria. Validar a documentação da empresa fica para a curadoria humana, fora do MVP.
 - **Suspender ou rejeitar uma organização revoga todas as suas sessões na hora.**
+
+### D-018 | 27/11/2026 | Fatias 3–6 — defeitos encontrados pelos testes e correções
+- **`updated_at` de contratos nascia com o nome `created_at`** (erro meu no esquema): o insert falhava com "column specified more than once". Corrigido com a migração `0003`, que adiciona `updated_at`.
+- **Contrato criado depois do evento não recebia alerta:** o motor só rodava na publicação. Agora roda de novo para os eventos publicados do fornecedor sempre que um contrato é criado, alterado ou importado (`rescanPublishedEvents`). É idempotente pela unicidade contrato×evento.
+- **Filtro `supplier_cnpj` dos alertas usava o fornecedor do evento:** num evento de grupo (matriz), a gestora que filtrava pelo CNPJ da filial da carteira não via nada. Agora filtra pelo fornecedor do **contrato**, e o DTO do alerta traz os dois (`contract.supplier` e `event.supplier`).
+- **Limite de taxa da API não era aplicado:** o gancho `onRoute` que injetava a configuração rodava depois do plugin. Agora cada rota da v1 declara `config.rateLimit`. Um teste garante o 429 com `Retry-After`.
+- **Paginação:** timestamps passaram a ter precisão de milissegundos (migração `0001`), para o cursor `(created_at, id)` não repetir itens. Um teste percorre todas as páginas e compara com a lista completa.
+
+### D-019 | 27/11/2026 | Fatias 3–6 — escolhas de comportamento
+- **Contrato sobreposto (mesma unidade, mesmo fornecedor, períodos que se cruzam) → 409 com os IDs conflitantes.** Só é criado com `confirm_overlap: true`, e nesse caso volta com aviso. Atende ao requisito do PLANO de evitar dupla contagem sem impedir casos legítimos, como dois contratos distintos com o mesmo fornecedor.
+- **Retirada de evento:** alertas `open` e `acknowledged` viram `retracted` e não mudam mais de status. Alertas `resolved` ficam como estão, porque a gestora já encerrou o assunto. Um evento retirado não pode ser republicado; é preciso criar um novo, para que a trilha não seja reescrita.
+- **Importação de FA cria evento em rascunho, nunca publicado:** uma piora de faixa vira rascunho `leverage_band_worsened` para revisão humana (ADR-0006). A semântica das faixas da CCEE não foi verificada e aparece como ressalva no próprio evento.
+- **OpenAPI:** só `/api/v1` aparece. A API do portal (`/app`) fica oculta porque não é contrato público. Esquemas nomeados vão para `components`. Um teste falha se `openapi/openapi.yaml` divergir do gerado.
+- **Testes:** o ESLint permite `any` só em `tests/` e `e2e/`, para inspecionar JSON de resposta. O código de produção continua estrito.

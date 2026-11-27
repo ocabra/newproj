@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, inArray, isNull, lte, or, sql, type SQL } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import type { DbLike } from "../db/client.js";
 import {
   alerts,
@@ -325,11 +326,15 @@ export async function rescanPublishedEvents(db: DbLike, supplierIds?: string[]) 
 
 // ------------------------------------------------------------------ alertas (tenant)
 
+// Fornecedor do CONTRATO (pode diferir do fornecedor do evento quando o evento vale para o grupo econômico).
+const contractSupplier = alias(suppliers, "contract_supplier");
+
 const alertSelect = {
   a: alerts,
   e: events,
   s: suppliers,
   c: contracts,
+  cs: contractSupplier,
   siteName: sites.name,
   clientId: clients.id,
   clientName: clients.legalName,
@@ -342,6 +347,7 @@ function alertQuery(db: DbLike) {
     .innerJoin(events, eq(events.id, alerts.eventId))
     .innerJoin(suppliers, eq(suppliers.id, events.supplierId))
     .innerJoin(contracts, eq(contracts.id, alerts.contractId))
+    .innerJoin(contractSupplier, eq(contractSupplier.id, contracts.supplierId))
     .innerJoin(sites, eq(sites.id, contracts.siteId))
     .innerJoin(clients, eq(clients.id, sites.clientId));
 }
@@ -365,6 +371,7 @@ function alertDto(r: AlertJoin, responses: { body: string; created_at: string }[
       start_date: r.c.startDate,
       end_date: r.c.endDate,
       volume_mwm: r.c.volumeMwm,
+      supplier: { cnpj: r.cs.cnpj, legal_name: r.cs.legalName },
     },
     event: eventDto(r.e, r.s, responses),
     exposure: (r.a.exposure as ReturnType<typeof computeExposure>["exposure"]) ?? null,
@@ -387,7 +394,7 @@ export async function listAlerts(
   const conds: (SQL | undefined)[] = [eq(alerts.orgId, p.orgId), isNull(contracts.deletedAt)];
   if (q.status) conds.push(eq(alerts.status, q.status));
   if (q.severity) conds.push(eq(alerts.severity, q.severity));
-  if (q.supplier_cnpj) conds.push(eq(suppliers.cnpj, q.supplier_cnpj));
+  if (q.supplier_cnpj) conds.push(eq(contractSupplier.cnpj, q.supplier_cnpj));
   if (q.client_id) conds.push(eq(clients.id, q.client_id));
   // Mais recentes primeiro: cursor (created_at, id) descendente.
   const cur = decodeCursor(q.cursor);
