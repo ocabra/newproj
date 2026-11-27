@@ -58,3 +58,16 @@
 - **Por quê:** reescrever 220 KB de pesquisa introduziria erros de transcrição e perderia rótulos de confiança; manter rascunhos e entregáveis duplicados criaria duas versões da verdade.
 - **Descartado:** manter `_pesquisa/` em paralelo (duplicação); renumerar referências globalmente (trabalho manual sujeito a erro, sem ganho).
 - **Script:** a reorganização foi feita por script descartável (prefixar referências, rebaixar títulos, separar seções); não versionado por ser uma transformação única e verificável pelo diff.
+
+### D-010 | 27/11/2026 | Etapa B — forma do modelo econômico
+- **Dúvida:** planilha, notebook ou script?
+- **Decisão:** script Python sem dependências (`scripts/economia.py`) que gera as tabelas e reescreve um bloco marcado em `docs/05` (`--atualizar`).
+- **Por quê:** PLANO §1.10 e §3.2 pedem resultado reproduzível e fórmulas explícitas; um script versionado mostra cada premissa e seu rótulo no diff; sem dependências roda em qualquer máquina com Python 3.
+- **Descartado:** XLSX (não diffável, fórmulas escondidas); notebook (estado oculto, dependências).
+
+### D-011 | 27/11/2026 | Etapa B — premissas sem fonte
+- **Dúvida:** o plano proíbe inventar preços, mas exige unit economics. Que números usar?
+- **Decisão:** usar faixas pessimista/base/otimista explicitamente rotuladas `HIPÓTESE`, ancoradas onde houver evidência (R$ 1–2 mil por indicação da Comerc para H1; lances de RD 2026 para H2; 144 varejistas, 438 comercializadoras e ~46 mil cargas fora do varejo para SAM). Custos fixos de mercado (jurídico, consultor, contador) também `HIPÓTESE`. A métrica usada para comparar hipóteses é **clientes necessários para cobrir o custo fixo vs. tamanho do mercado documentado**, que é muito menos sensível às premissas inventadas do que o caixa acumulado.
+- **Por quê:** é a forma de fazer a conta sem fingir precisão; a comparação qualitativa (H2 precisa de 37% do mercado nacional de RD; H5 precisa de < 1% dos compradores) sobrevive a erros de 2× nas premissas.
+- **Sinal de viés registrado:** as premissas de H5 (início no mês 4, CAC R$ 3 mil) são mais favoráveis que as de H3/H4 porque dados públicos encurtam a construção; se isso estiver errado, H5 se aproxima de H4. A sensibilidade "início +3 meses" e "CAC +50%" está na tabela.
+- **Pró-labore:** R$ 8 mil/mês por fundador como mínimo hipotético, mostrado à parte, porque o orçamento informado é só de infraestrutura.
