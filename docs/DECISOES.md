@@ -51,3 +51,10 @@
 - **Decisão:** incluir **H5 — monitor de risco de contraparte de fornecedores de energia** na comparação, como hipótese (dor CONFIRMADA por fatos públicos; disposição a pagar NÃO VERIFICADA). Lanço um agente de pesquisa dedicado (fontes de dados públicas, substitutos como birôs de crédito e CCEE, risco jurídico de publicar avaliações sobre empresas).
 - **Por quê:** é a única dor com evidência pública forte e recente que não colide com o comparador oficial nem exige habilitação CCEE.
 - **Descartado:** ignorar por não estar na lista original (o plano manda não presumir viabilidade da ideia inicial); adotá-la sem pesquisa (viés de novidade).
+
+### D-009 | 27/11/2026 | Etapa A — forma de consolidar os entregáveis
+- **Dúvida:** reescrever os rascunhos dos agentes em texto novo ou promovê-los aos entregáveis oficiais?
+- **Decisão:** promover o conteúdo sem reescrever (apenas reorganizar): `01-MERCADO` = síntese minha + mapa de atores + Parte A (ACL) + Parte B (RD) + Parte C (Open Energy); `02` = clientes; `03` = concorrência; `04` = dados e integrações; `REFERENCIAS.md` = todas as tabelas de fontes. As referências recebem prefixo da frente (`ACL-R1`, `RD-R1`, `CLI-R1`, `CON-R1`, `OE-R1`, `H5-R1`) porque cada agente numerou de R1 em diante. Os rascunhos em `docs/_pesquisa/` são removidos (ficam no histórico do git, commits `6df0288`…`1b533e0`).
+- **Por quê:** reescrever 220 KB de pesquisa introduziria erros de transcrição e perderia rótulos de confiança; manter rascunhos e entregáveis duplicados criaria duas versões da verdade.
+- **Descartado:** manter `_pesquisa/` em paralelo (duplicação); renumerar referências globalmente (trabalho manual sujeito a erro, sem ganho).
+- **Script:** a reorganização foi feita por script descartável (prefixar referências, rebaixar títulos, separar seções); não versionado por ser uma transformação única e verificável pelo diff.
