@@ -35,3 +35,8 @@
 - **Decisão:** um commit por unidade lógica de trabalho (cada rascunho de pesquisa, cada entregável consolidado, cada decisão de gate, cada fatia vertical do MVP), direto na `main`, com mensagem descritiva em português. Rascunhos dos agentes são commitados só quando o agente termina (nunca arquivo pela metade). Commits locais; **não faço `push`** automaticamente.
 - **Por quê:** commits pequenos tornam cada decisão auditável e reversível com `git revert`. Push é ação externa (publica no GitHub) e o pedido foi só de commits; vocês podem dar `git push` quando quiserem.
 - **Descartado:** branch por etapa + PR (o repositório é novo, de dois fundadores, sem CI nem revisão — overhead sem benefício agora); commit único no final (perde a rastreabilidade pedida).
+
+### D-006 | 27/11/2026 | Versionamento (revisão de D-005)
+- **Mudança:** fundadores autorizaram `push` ("pode comitar e empurrar", com bom senso).
+- **Decisão:** após cada commit lógico, `git push origin main`. Antes de cada push confiro que não há segredos (`.env`, chaves, credenciais) nem dados reais de clientes no diff; nunca uso `--force`.
+- **Por quê:** o GitHub passa a ser o backup e permite acompanhar o progresso de outro dispositivo.
