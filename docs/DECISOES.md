@@ -98,3 +98,14 @@
 - **CSV com `;` aceita vírgula decimal:** é o formato padrão do Excel em pt-BR. Com `,`, só ponto decimal.
 - **Volume > 1.000 MWm é rejeitado com a mensagem "parece estar em MWh":** é o erro de unidade mais provável (PLANO §1.6). Nenhum consumidor individual do ACL chega perto de 1 GW médio.
 - **Horas restantes = dias civis × 24:** o Brasil não tem horário de verão desde 2019. Se voltar a ter, o erro máximo é de 1 h por ano de contrato. Está documentado em `exposure.ts`.
+
+### D-016 | 27/11/2026 | Fatia 2 — autenticação antes da validação
+- **Problema encontrado em teste:** a validação do corpo (422) rodava antes do CSRF e da sessão, então uma requisição forjada sem cabeçalho recebia 422 em vez de 403, e um anônimo recebia 422 em vez de 401. Isso revela o formato da API a quem não está autenticado.
+- **Decisão:** autenticação e CSRF rodam no gancho `preValidation` do Fastify, antes da validação de schema. A ordem passa a ser 401/403 → 422 → regra de negócio.
+
+### D-017 | 27/11/2026 | Fatia 2 — escolhas de identidade
+- **Um usuário pertence a uma única organização** (índice único em `memberships.user_id`). Uma gestora com vários usuários é o caso real. Um mesmo e-mail em várias organizações não aparece no MVP e complicaria a sessão. Reversível: basta remover o índice e incluir uma troca de organização na sessão.
+- **Convite sem e-mail transacional:** o link com token é devolvido a quem convidou, que o envia por conta própria. Não contratei serviço de e-mail (PLANO §1.8).
+- **Senha mínima de 10 caracteres, sem regras de composição:** segue a orientação NIST 800-63B (comprimento acima de complexidade).
+- **Aprovação de organização fornecedora vincula ao catálogo pelo CNPJ declarado:** se o CNPJ já existe no catálogo, usa esse registro; se não, cria. Validar a documentação da empresa fica para a curadoria humana, fora do MVP.
+- **Suspender ou rejeitar uma organização revoga todas as suas sessões na hora.**

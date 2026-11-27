@@ -17,8 +17,9 @@ import {
 } from "drizzle-orm/pg-core";
 
 const id = () => uuid("id").primaryKey().defaultRandom();
-const createdAt = () => timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
-const tsz = (name: string) => timestamp(name, { withTimezone: true });
+// Precisão de milissegundos: igual ao Date do JS, para cursores de paginação exatos.
+const createdAt = () => timestamp("created_at", { withTimezone: true, precision: 3 }).notNull().defaultNow();
+const tsz = (name: string) => timestamp(name, { withTimezone: true, precision: 3 });
 
 export const orgType = pgEnum("org_type", ["manager", "consumer", "supplier", "operator"]);
 export const orgStatus = pgEnum("org_status", ["pending", "approved", "rejected", "suspended"]);
@@ -260,7 +261,7 @@ export const alerts = pgTable(
     status: alertStatus("status").notNull().default("open"),
     reasons: jsonb("reasons").$type<string[]>().notNull(),
     snapshot: jsonb("snapshot").$type<Record<string, unknown>>().notNull(),
-    exposure: jsonb("exposure").$type<Record<string, unknown> | null>(),
+    exposure: jsonb("exposure").$type<object | null>(),
     statusChangedAt: tsz("status_changed_at"),
     statusChangedBy: uuid("status_changed_by"),
     createdAt: createdAt(),
@@ -348,4 +349,20 @@ export const auditEvents = pgTable(
     ip: text("ip"),
   },
   (t) => [index("audit_org_at").on(t.orgId, t.at)],
+);
+
+/** Idempotência de POSTs críticos da API B2B (chave por organização; expira em 24 h). */
+export const idempotencyKeys = pgTable(
+  "idempotency_keys",
+  {
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id),
+    key: text("key").notNull(),
+    requestHash: text("request_hash").notNull(),
+    responseStatus: integer("response_status").notNull(),
+    responseBody: jsonb("response_body").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.orgId, t.key] })],
 );
