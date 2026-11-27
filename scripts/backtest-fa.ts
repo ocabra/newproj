@@ -27,7 +27,7 @@ if (!fa.ok) {
   console.error("FA inválido:", fa.errors.slice(0, 20));
   process.exit(1);
 }
-const rawEvents = parse(fs.readFileSync(eventsFile, "utf8").replace(/^﻿/, ""), {
+const rawEvents = parse(fs.readFileSync(eventsFile, "utf8").replace(/^\uFEFF/, ""), {
   columns: true,
   skip_empty_lines: true,
   trim: true,
