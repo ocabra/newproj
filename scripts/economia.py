@@ -132,16 +132,18 @@ HIPOTESES = [
     Hipotese(
         "H5", "Monitor de risco de contraparte de fornecedores de energia",
         "consumidor livre (CFO/compras), gestora, comercializadora", "assinatura mensal",
-        sam_clientes=5_000,
-        sam_fonte="~46 mil cargas fora do varejo (91.970 − 45.982, CLI-R1, CONFIRMADO) → ~5 mil grupos "
-                  "compradores (HIPÓTESE: ~9 cargas por grupo) + 438 comercializadoras classificadas (CLI-R2)",
-        evidencia_preco="nenhuma direta; dor CONFIRMADA (RJs 2026, H5-R*); birôs de crédito PJ como substituto",
+        sam_clientes=5_300,
+        sam_fonte="gestoras/consultorias (nº NÃO VERIFICADO, HIPÓTESE ~300) + consumidores agentes grandes; "
+                  "~46 mil cargas fora do varejo (CLI-R1) → ~5 mil grupos (HIPÓTESE). Comercializadoras excluídas: "
+                  "já atendidas pela Central de Risco Abraceel/Risk3 (H5-R28..R30)",
+        evidencia_preco="âncora do substituto genérico: Serasa R$ 120–270/mês (H5-R33, CONFIRMADO); preço setorial "
+                        "(Risk3/Thunders) não público; FA da CCEE gratuito (H5-R6)",
         custos_fixos_extra={"fontes de dados (consultas judiciais/birô em escala de piloto)": 1_500,
                             "seguro de responsabilidade civil profissional": 500},
-        cenarios={
-            "pessimista": Cenario(preco=600, alvo24=8, inicio=5, cac=4_000, churn=0.04, custo_var_cliente=60),
-            "base": Cenario(preco=1_200, alvo24=30, inicio=4, cac=3_000, churn=0.025, custo_var_cliente=80),
-            "otimista": Cenario(preco=2_000, alvo24=80, inicio=3, cac=2_000, churn=0.015, custo_var_cliente=100),
+        cenarios={  # preço médio por conta (mistura de consumidor ~R$ 250 e gestora ~R$ 1.000+); revisado em D-012
+            "pessimista": Cenario(preco=250, alvo24=10, inicio=5, cac=3_000, churn=0.05, custo_var_cliente=40),
+            "base": Cenario(preco=600, alvo24=35, inicio=4, cac=2_500, churn=0.03, custo_var_cliente=60),
+            "otimista": Cenario(preco=1_500, alvo24=80, inicio=3, cac=2_000, churn=0.015, custo_var_cliente=80),
         },
     ),
 ]

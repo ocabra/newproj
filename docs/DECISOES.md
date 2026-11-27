@@ -71,3 +71,20 @@
 - **Por quê:** é a forma de fazer a conta sem fingir precisão; a comparação qualitativa (H2 precisa de 37% do mercado nacional de RD; H5 precisa de < 1% dos compradores) sobrevive a erros de 2× nas premissas.
 - **Sinal de viés registrado:** as premissas de H5 (início no mês 4, CAC R$ 3 mil) são mais favoráveis que as de H3/H4 porque dados públicos encurtam a construção; se isso estiver errado, H5 se aproxima de H4. A sensibilidade "início +3 meses" e "CAC +50%" está na tabela.
 - **Pró-labore:** R$ 8 mil/mês por fundador como mínimo hipotético, mostrado à parte, porque o orçamento informado é só de infraestrutura.
+
+### D-012 | 27/11/2026 | Etapa B — revisão de H5 após pesquisa dedicada
+- **Fato novo:** a Central de Risco Abraceel/Risk3 já monitora contrapartes para comercializadoras associadas; a CCEE publica de graça o Fator de Alavancagem (FA) semanal; a Thunders o republica; a única âncora de preço confirmada é birô genérico (Serasa, R$ 120–270/mês).
+- **Decisão:** rebaixar H5 no modelo. Preço base de R$ 1.200 para R$ 600/mês, pessimista R$ 250 (âncora do birô), churn maior; tirar comercializadoras do SAM (já atendidas). Reescrever a defensabilidade como "fraca a média". Estreitar o escopo para **H5-G**: alertas e exposição na carteira de **gestoras e compradores finais**, sem refazer o que a CCEE já publica.
+- **Efeito:** no cenário base, H5 passou de melhor caixa para equivalente a H4 (−R$ 359 mil vs −R$ 278 mil em 24 meses). Mantive os resultados revisados, mesmo piores, porque a versão anterior estava otimista sem evidência (viés que eu já tinha sinalizado em D-011).
+
+### D-013 | 27/11/2026 | Gate de negócio — decisão
+- **Dúvida:** GO, GO CONDICIONAL, PIVOT ou NO-GO? E qual estratégia?
+- **Decisão:** **PIVOT** para H5-G (radar de risco de fornecedores para gestoras de energia) sob **GO CONDICIONAL**, ou seja, só um protótipo reversível com dados sintéticos. Detalhes, matriz e experimentos em `06`.
+- **Por quê H5-G e não H4 (2º colocado):** (1) dor documentada em 2026 com casos concretos, contra dor apenas suposta em H4; (2) H4 está saturado e sob ameaça direta do comparador oficial; (3) o protótipo de H5-G é o próprio instrumento do experimento mais barato e decisivo (E1, backtest do FA), então construir gera evidência e não só software; (4) o motor contrato × evento se encaixa no requisito do PLANO de "match explicável e determinístico".
+- **Por quê não NO-GO:** existe comprador identificável (gestora), dado lícito e rota legal plausível; o que falta é validação comercial, e o PLANO define isso como GO CONDICIONAL.
+- **Riscos que contradizem a ideia original e não foram escondidos:** o marketplace original foi rejeitado; H5-G pode não sobreviver ao fim da crise; a diferença na matriz é pequena (7 pontos) e foi declarada.
+- **Reversibilidade:** total. Se E2 falhar, o protótipo é abandonado e a pesquisa de `01`–`05` continua valendo para reavaliar H4/H3.
+
+### D-014 | 27/11/2026 | Pedidos aos fundadores sem perguntar
+- **Dúvida:** E2 (entrevistas), E3 (advogado) e E4 (contato com Abraceel/Risk3) exigem ação externa que eu não posso fazer (PLANO §1.8).
+- **Decisão:** registrei esses itens como experimentos com dono = fundadores, prazo e critério de sucesso em `06` §6, sem bloquear o protótipo. Não fiz contato com ninguém.
