@@ -166,3 +166,15 @@
 - **Ponto de parada:** o PLANO §7 e o gate de `06` mandam não acelerar o desenvolvimento sem comprador. Parei depois do protótipo verificado, do relatório (`10`) e do plano de 90 dias. Não comecei RLS, e-mail transacional nem deploy em nuvem: dependem do resultado de E2/E3 e de gastos que os fundadores precisam aprovar (PLANO §1.8).
 - **Status no topo do `PLANO.md`:** atualizado, como pede o §8 ("atualizar decisões e status"). O texto original do plano foi preservado.
 - **Não verificado e declarado:** primeira execução da CI, navegadores além do Chromium, auditoria automática de acessibilidade, deploy em nuvem e qualquer validação com usuários reais.
+
+### D-024 | 27/11/2026 | Tamanho do público de H5-G (pedido dos fundadores)
+- **Dúvida:** o público de gestoras é pequeno demais? Bancos, seguradoras e fundos ampliariam o mercado?
+- **Pesquisa:** dois agentes em paralelo, só web, sem contato externo. Resultados em `anexos/MERCADO-GESTORAS.md` e `anexos/MERCADO-FINANCIADORES.md`.
+- **Conferido por mim nas fontes:** os 14% da carga do ACL no Relatório Executivo 2025 da Comerc (PDF lido) e os créditos de UBS Brasil Corretora (R$ 92 mi) e Bradesco (R$ 62,6 mi) na RJ da Tradener (CNN Brasil, 20/05/2026).
+- **Conclusão:**
+  - Gestoras independentes: 125–420 no total (~250, `INFERÊNCIA`, confiança baixa), mas só ~60–150 com ≥ 50 UCs. A premissa de 35 clientes pagantes em `05` exige uns 25–35% desse núcleo, o que é agressivo.
+  - O mercado se consolida: Comerc (Vibra), Esfera (Auren) e Clarke (Energisa) deixaram de ser independentes.
+  - Financiadores: exposição real e documentada, mas são poucos compradores (30–70, `INFERÊNCIA`) e boa parte da exposição bancária passa por tradings dos próprios bancos, que já são comercializadoras. Veredito: **incerto**.
+- **Decisão:** manter a decisão de `06` (GO CONDICIONAL), mas registrar que o teto de H5-G é de **negócio pequeno**: ~R$ 0,4–0,7 mi/ano de receita com fatia realista. Acrescentar à E2 duas perguntas: quantos clientes não varejistas a gestora atende e se pagaria por contrato monitorado. Acrescentar um experimento **E6**: 3–5 conversas com subscritores de seguro garantia/crédito sobre um feed de eventos por CNPJ tomador, após E3.
+- **Descartado:** refazer a matriz de `06` agora. A pontuação de mercado de H5-G já era baixa, e sem as entrevistas os números novos não mudam a ordem com segurança.
+- **Reversibilidade:** alta. Se a E2 mostrar carteira média maior que 40 agentes por gestora, o público sobe; se menor, reforça o NO-GO.

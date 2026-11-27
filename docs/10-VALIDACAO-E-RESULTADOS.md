@@ -73,6 +73,7 @@ Custos únicos: R$ 41 mil, dos quais R$ 30 mil são o parecer jurídico. **Infra
 |---|---|---|
 | Ninguém paga (HC3): âncora de birô a R$ 120–270/mês | Alta | E2 com critério de parada |
 | CCEE publica gratuitamente o "% de risco por varejista" ou a Abraceel/Risk3 abre o serviço a gestoras | Alta | E4, E5; reposicionar para exposição na carteira |
+| Público pequeno: ~60–150 gestoras independentes com ≥ 50 UCs; financiadores são 30–70 e incertos (D-024) | Alta | E2 mede a carteira média; E6 testa seguradoras de garantia |
 | Demanda cíclica: some quando a crise de 2026 passar | Alta | Métricas de retenção; acompanhar câmaras de garantia de 2027 |
 | Enquadramento CVM 9/2020 e responsabilidade civil por conteúdo curado | Alta | E3, antes de dados reais; só fatos com fonte, sem nota, privado, direito de resposta |
 | Curadoria manual não escala; erro de curadoria gera dano | Média | Dupla checagem; retirada com justificativa; meta ≥ 98% sem retificação |
