@@ -1,5 +1,7 @@
 # PLANO.md — Pesquisa, viabilidade e MVP de uma plataforma B2B para o mercado brasileiro de energia
 
+> **STATUS DE EXECUÇÃO (27/11/2026):** Etapas A–D executadas. **Decisão do gate: PIVOT para H5-G (radar de risco de fornecedores para gestoras de energia) sob GO CONDICIONAL** (`docs/06`). Protótipo com dados sintéticos implementado e verificado (`docs/10`). **Próximo passo: experimentos E1–E4, que dependem dos fundadores**; nenhum desenvolvimento novo antes de E2. Todas as decisões tomadas durante a execução: `docs/DECISOES.md`.
+
 > **Papel deste documento:** prompt mestre para um agente de IA com acesso à internet, ao repositório e às ferramentas de desenvolvimento. Execute as etapas na ordem. A pesquisa e a decisão de negócio são pré-requisitos para qualquer implementação.
 >
 > **Data de referência inicial:** 27/11/2026. Verifique a data corrente e a vigência das regras antes de utilizar qualquer informação. Não trate páginas antigas como legislação atual.

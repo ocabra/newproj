@@ -160,3 +160,9 @@
   5. 360 px sem rolagem horizontal da página em 4 telas.
   Em todas as telas visitadas, o teste procura frases proibidas, como "integração oficial", "score de crédito", "rating" e "previsão de falência".
 - **Erros do próprio teste encontrados e corrigidos:** localizador ambíguo (duas fontes na tela), segredo lido de `input` com `innerText`, escopo padrão não desmarcado. Nenhum era defeito do produto.
+
+### D-023 | 27/11/2026 | Encerramento da execução
+- **Imagem de container verificada de verdade:** build com exit 0, 226 MB. O container aplica as migrações ao subir e responde `/health` e a SPA. Por isso o README pode afirmar que a imagem funciona.
+- **Ponto de parada:** o PLANO §7 e o gate de `06` mandam não acelerar o desenvolvimento sem comprador. Parei depois do protótipo verificado, do relatório (`10`) e do plano de 90 dias. Não comecei RLS, e-mail transacional nem deploy em nuvem: dependem do resultado de E2/E3 e de gastos que os fundadores precisam aprovar (PLANO §1.8).
+- **Status no topo do `PLANO.md`:** atualizado, como pede o §8 ("atualizar decisões e status"). O texto original do plano foi preservado.
+- **Não verificado e declarado:** primeira execução da CI, navegadores além do Chromium, auditoria automática de acessibilidade, deploy em nuvem e qualquer validação com usuários reais.
