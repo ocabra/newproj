@@ -124,7 +124,10 @@ describe("motor de alertas rules@1 (ponta a ponta)", () => {
       reason: "Fonte corrigiu a publicação original.",
     });
     expect(r.json()).toEqual({ alerts_retracted: 1 });
-    expect((await G.get(`/app/alerts/${al!.id}`)).json().status).toBe("retracted");
+    const retracted = (await G.get(`/app/alerts/${al!.id}`)).json();
+    expect(retracted.status).toBe("retracted");
+    expect(retracted.event.retraction_reason).toBe("Fonte corrigiu a publicação original.");
+    expect(retracted.event.retracted_at).not.toBeNull();
     expect((await G.patch(`/app/alerts/${al!.id}`, { status: "open" })).statusCode).toBe(409);
     await seedContract(G, sup, { start_date: "2028-01-01", end_date: "2028-12-31" });
     expect((await alertsOf(G, `?supplier_cnpj=${sup}`)).filter((x) => x.status !== "retracted")).toHaveLength(0);

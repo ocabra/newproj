@@ -161,6 +161,20 @@ export async function createSite(
   return siteDto(s!);
 }
 
+export async function deleteSite(db: DbLike, p: Principal, id: string) {
+  const [s] = await db
+    .update(sites)
+    .set({ deletedAt: new Date() })
+    .where(and(eq(sites.id, id), eq(sites.orgId, p.orgId), isNull(sites.deletedAt)))
+    .returning();
+  if (!s) throw notFound("Unidade");
+  await db
+    .update(contracts)
+    .set({ deletedAt: new Date() })
+    .where(and(eq(contracts.siteId, id), eq(contracts.orgId, p.orgId), isNull(contracts.deletedAt)));
+  await audit(db, p, "site.deleted", { type: "site", id });
+}
+
 async function ownedSite(db: DbLike, p: Principal, siteId: string) {
   const [s] = await db
     .select()

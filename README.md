@@ -46,14 +46,14 @@ npm run dev                   # API em :3000 e portal em http://localhost:5173
 
 Usuários do seed (senha = `SEED_PASSWORD`):
 
-| E-mail | Papel |
-|---|---|
-| `gestora@radar.invalid` | Gestora (titular): carteira com alertas |
-| `consumidor@radar.invalid` | Consumidor agente |
-| `fornecedor@radar.invalid` | Fornecedor "Alfa", com direito de resposta |
-| `curadoria@radar.invalid` | Operação: curadoria de eventos |
-| `admin@radar.invalid` | Operação: aprovação de organizações e auditoria |
-| `pendente@radar.invalid` | Gestora aguardando aprovação |
+| E-mail                     | Papel                                           |
+| -------------------------- | ----------------------------------------------- |
+| `gestora@radar.invalid`    | Gestora (titular): carteira com alertas         |
+| `consumidor@radar.invalid` | Consumidor agente                               |
+| `fornecedor@radar.invalid` | Fornecedor "Alfa", com direito de resposta      |
+| `curadoria@radar.invalid`  | Operação: curadoria de eventos                  |
+| `admin@radar.invalid`      | Operação: aprovação de organizações e auditoria |
+| `pendente@radar.invalid`   | Gestora aguardando aprovação                    |
 
 Os nomes e CNPJs são **fictícios**. Os CNPJs têm dígito verificador válido e podem coincidir por acaso com empresas reais, sem relação com elas.
 
@@ -82,19 +82,20 @@ Resultados reais da última execução: [`docs/10-VALIDACAO-E-RESULTADOS.md`](do
 
 ## Outros comandos
 
-| Comando | Para quê |
-|---|---|
-| `npm run openapi` | Regenera `openapi/openapi.yaml` a partir dos schemas Zod. Um teste falha se o arquivo estiver desatualizado |
-| `npm run economia` | Recalcula `docs/05` a partir de `scripts/economia.py` |
-| `npm run backtest -- --fa fa.csv --eventos eventos.csv --saida resultado.md` | Experimento E1. Sem argumentos, usa amostras sintéticas |
-| `npm run purge [-- --dry-run]` | Retenção: remove carteira excluída há > 90 dias e sessões antigas |
-| `npm run revoke-all -- --confirmo` | Incidente: revoga todas as sessões e chaves |
-| `scripts/backup-restore-test.sh` | Faz dump, restaura num banco temporário e confere as contagens |
-| `podman build -t radar -f Containerfile .` | Imagem única. Em runtime precisa de `DATABASE_URL` e aplica as migrações ao subir |
+| Comando                                                                      | Para quê                                                                                                    |
+| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `npm run openapi`                                                            | Regenera `openapi/openapi.yaml` a partir dos schemas Zod. Um teste falha se o arquivo estiver desatualizado |
+| `npm run economia`                                                           | Recalcula `docs/05` a partir de `scripts/economia.py`                                                       |
+| `npm run backtest -- --fa fa.csv --eventos eventos.csv --saida resultado.md` | Experimento E1. Sem argumentos, usa amostras sintéticas                                                     |
+| `npm run purge [-- --dry-run]`                                               | Retenção: remove carteira excluída há > 90 dias e sessões antigas                                           |
+| `npm run revoke-all -- --confirmo`                                           | Incidente: revoga todas as sessões e chaves                                                                 |
+| `scripts/backup-restore-test.sh`                                             | Faz dump, restaura num banco temporário e confere as contagens                                              |
+| `podman build -t radar -f Containerfile .`                                   | Imagem única. Em runtime precisa de `DATABASE_URL` e aplica as migrações ao subir                           |
 
 ## Direitos do titular e exclusão (procedimento manual no MVP)
 
 O pedido chega por e-mail à operação. O admin localiza o usuário e a organização na auditoria e então:
+
 - **exportação:** consulta SQL das tabelas da organização;
 - **exclusão:** exclusão lógica da carteira pela própria gestora, seguida de `npm run purge`, ou remoção do usuário via SQL, registrando o atendimento.
 

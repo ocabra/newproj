@@ -3,7 +3,8 @@ import { z } from "zod";
 const Env = z.object({
   DATABASE_URL: z.string().url(),
   PORT: z.coerce.number().int().positive().default(3000),
-  HOST: z.string().default("127.0.0.1"),
+  // API_HOST (não HOST): muitos shells já exportam HOST com o nome da máquina.
+  API_HOST: z.string().default("127.0.0.1"),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   APP_ORIGIN: z.string().url().default("http://localhost:5173"),
 });

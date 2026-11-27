@@ -232,6 +232,8 @@ export const PublicEvent = z
     status: z.enum(["draft", "published", "retracted"]),
     supplier: z.object({ cnpj, legal_name: z.string() }),
     supplier_responses: z.array(z.object({ body: z.string(), created_at: timestamp })),
+    retracted_at: timestamp.nullable(),
+    retraction_reason: z.string().nullable(),
   })
   .meta({ id: "Event" });
 

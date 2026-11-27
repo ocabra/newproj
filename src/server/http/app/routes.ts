@@ -27,6 +27,7 @@ import {
   createSite,
   deleteClient,
   deleteContract,
+  deleteSite,
   getContract,
   importContractsCsv,
   listClients,
@@ -207,6 +208,10 @@ export async function registerAppRoutes(
     s.post("/sites", { schema: { ...hide, body: S.SiteCreate } }, async (req, reply) =>
       reply.status(201).send(await createSite(db, authorize(P(req), PORTFOLIO_WRITE), req.body)),
     );
+    s.delete("/sites/:id", { schema: { ...hide, params: S.IdParam } }, async (req, reply) => {
+      await deleteSite(db, authorize(P(req), PORTFOLIO_WRITE), req.params.id);
+      return reply.status(204).send();
+    });
     s.get("/contracts", { schema: { ...hide, querystring: S.ContractListQuery } }, async (req) =>
       listContracts(db, authorize(P(req), PORTFOLIO), req.query),
     );

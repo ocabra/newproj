@@ -131,3 +131,32 @@
 - **`.env` opcional:** `process.loadEnvFile` lança erro quando o arquivo não existe, o que quebraria a CI e o container. Centralizei em `loadDotEnv()`, que ignora apenas ENOENT.
 - **Migrações localizadas subindo a árvore até `drizzle/`:** o caminho relativo fixo funcionava em `src/`, mas não em `dist/node/`. Isso foi visto ao escrever o `Containerfile`, antes de causar falha.
 - **CI (GitHub Actions) escrita, mas não executada por mim:** não disparo workflows. Ela roda no próximo push; o resultado real ainda não foi verificado.
+
+### D-021 | 27/11/2026 | Front-end e lacunas apontadas pelo agente de UI
+- **Front-end feito por agente dedicado, com escopo restrito a `src/web/`:** ele não alterou o servidor. Listou 11 lacunas da API, e eu tratei cada uma assim:
+  - **Corrigidas:**
+    1. A variável `HOST` do shell (nome da máquina) sobrescrevia o `.env` e derrubava o servidor; renomeada para `API_HOST`.
+    2. Faltava `DELETE /app/sites/:id`, que agora existe e exclui logicamente os contratos da unidade.
+    3. As mensagens de validação vinham em inglês; agora usam o `z.locales.pt()` do Zod.
+    4. Alerta de evento retirado não dizia por quê; o DTO do evento traz `retracted_at` e `retraction_reason`, exibidos na tela.
+    Todas têm teste.
+  - **Aceitas como dívida, sem corrigir agora:**
+    - rotas de operação de `/app` devolvem linhas do banco em camelCase, não DTOs em snake_case: API interna, fora do contrato público;
+    - DTO de contrato sem nome de cliente e de unidade: o front monta isso com até 2.000 itens, suficiente para o protótipo;
+    - snapshot de volume ausente na exposição;
+    - `type_label` ausente na explicação;
+    - corpo vazio com `application/json` é rejeitado pelo Fastify;
+    - `/me` não informa vínculo do fornecedor;
+    - republicar evento reexecuta o motor: é idempotente, por isso aceito.
+- **Escopos padrão ao criar chave de API:** `portfolio:read` e `alerts:read` (somente leitura). Escrita exige marcação explícita. Decisão do agente de UI, mantida por seguir o princípio do menor privilégio na escrita.
+
+### D-022 | 27/11/2026 | Testes E2E
+- **Banco próprio `radar_e2e`, recriado a cada execução, com o build de produção servido pelo Fastify** (não o servidor de desenvolvimento do Vite). Assim o teste cobre o artefato que vai para produção.
+- **Jornadas cobertas:**
+  1. cadastro → pendente → aprovação pelo admin na interface → carteira montada na interface → alerta crítico com fonte, exposição e resposta do fornecedor → reconhecer → chave de API criada na interface lendo a API (200), além de 401 sem chave e 403 com escopo errado;
+  2. curadoria publica rascunho e a gestora recebe o alerta;
+  3. fornecedor responde a evento;
+  4. login só por teclado;
+  5. 360 px sem rolagem horizontal da página em 4 telas.
+  Em todas as telas visitadas, o teste procura frases proibidas, como "integração oficial", "score de crédito", "rating" e "previsão de falência".
+- **Erros do próprio teste encontrados e corrigidos:** localizador ambíguo (duas fontes na tela), segredo lido de `input` com `innerText`, escopo padrão não desmarcado. Nenhum era defeito do produto.

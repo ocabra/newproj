@@ -15,6 +15,7 @@ import {
   type ZodTypeProvider,
 } from "fastify-type-provider-zod";
 import fs from "node:fs";
+import { z } from "zod";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Config } from "./config.js";
@@ -36,6 +37,9 @@ declare module "fastify" {
 }
 
 export const VERSION = "0.1.0";
+
+// Mensagens de validação em português.
+z.config(z.locales.pt());
 
 export interface BuildOptions {
   db: Db;

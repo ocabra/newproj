@@ -8,7 +8,7 @@ RUN npm run build && npm prune --omit=dev
 
 FROM docker.io/library/node:24-alpine
 WORKDIR /app
-ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
+ENV NODE_ENV=production API_HOST=0.0.0.0 PORT=3000
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/drizzle ./drizzle

@@ -574,6 +574,15 @@ components:
             required:
               - body
               - created_at
+        retracted_at:
+          anyOf:
+            - type: string
+              description: ISO 8601 em UTC
+            - type: "null"
+        retraction_reason:
+          type:
+            - string
+            - "null"
       required:
         - id
         - type
@@ -589,6 +598,8 @@ components:
         - status
         - supplier
         - supplier_responses
+        - retracted_at
+        - retraction_reason
     AlertInput:
       type: object
       properties:
@@ -1258,6 +1269,15 @@ components:
               - body
               - created_at
             additionalProperties: false
+        retracted_at:
+          anyOf:
+            - type: string
+              description: ISO 8601 em UTC
+            - type: "null"
+        retraction_reason:
+          type:
+            - string
+            - "null"
       required:
         - id
         - type
@@ -1273,6 +1293,8 @@ components:
         - status
         - supplier
         - supplier_responses
+        - retracted_at
+        - retraction_reason
       additionalProperties: false
     Alert:
       type: object

@@ -13,7 +13,7 @@ export async function generateOpenApiYaml(): Promise<string> {
     config: {
       DATABASE_URL: "postgres://x",
       PORT: 0,
-      HOST: "127.0.0.1",
+      API_HOST: "127.0.0.1",
       NODE_ENV: "test",
       APP_ORIGIN: "http://localhost",
     },

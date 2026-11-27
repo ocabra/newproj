@@ -105,6 +105,20 @@ describe("carteira", () => {
   });
 });
 
+describe("exclusão e mensagens", () => {
+  it("excluir unidade exclui seus contratos; B não exclui unidade de A", async () => {
+    const x = await seedContract(A, cnpj());
+    expect((await B.del(`/app/sites/${x.siteId}`)).statusCode).toBe(404);
+    expect((await A.del(`/app/sites/${x.siteId}`)).statusCode).toBe(204);
+    expect((await A.get(`/app/contracts/${x.contractId}`)).statusCode).toBe(404);
+  });
+  it("mensagens de validação em português", async () => {
+    const r = await A.post("/app/clients", { legal_name: "X", cnpj: "1" });
+    expect(r.statusCode).toBe(422);
+    expect(JSON.stringify(r.json().error.details)).toMatch(/pequeno|caracteres/i);
+  });
+});
+
 describe("isolamento entre organizações (manipulando IDs e filtros)", () => {
   it("B não lê, altera nem exclui contrato de A (404, sem vazar existência)", async () => {
     expect((await B.get(`/app/contracts/${a.contractId}`)).statusCode).toBe(404);

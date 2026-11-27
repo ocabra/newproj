@@ -68,6 +68,8 @@ export function eventDto(e: EventRow, s: SupplierRow, responses: { body: string;
     status: e.status,
     supplier: { cnpj: s.cnpj, legal_name: s.legalName },
     supplier_responses: responses,
+    retracted_at: e.retractedAt?.toISOString() ?? null,
+    retraction_reason: e.retractionReason,
   };
 }
 
