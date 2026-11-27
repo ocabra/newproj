@@ -40,3 +40,14 @@
 - **Mudança:** fundadores autorizaram `push` ("pode comitar e empurrar", com bom senso).
 - **Decisão:** após cada commit lógico, `git push origin main`. Antes de cada push confiro que não há segredos (`.env`, chaves, credenciais) nem dados reais de clientes no diff; nunca uso `--force`.
 - **Por quê:** o GitHub passa a ser o backup e permite acompanhar o progresso de outro dispositivo.
+
+### D-007 | 27/11/2026 | Etapa A — verificação independente (D-003)
+- **Feito:** conferi por busca própria as 4 afirmações que mais pesam no gate: (1) REN ANEEL 1.175/2026 (Open Energy) publicada em 04/11/2026, comparador CCEE em até 12 meses mediante aprovação; (2) 3º mecanismo de RD Disponibilidade contratou 344 MW (12 ofertas, 86% metalurgia) em sandbox; (3) AXIA oferece plataforma agregadora de RD gratuita por 12 meses; (4) Decreto 13.097/2026 abre BT em 25/11/2027 (indústria/comércio) e 25/11/2028 (demais), com varejista obrigatório.
+- **Resultado:** todas consistentes com os rascunhos. Divergência menor: um agente tratou "REN 1.174/1.175" como INFERÊNCIA, outro como CONFIRMADO via reprodução do DOU. Mantenho **CONFIRMADO para a 1.175 (Open Energy)** e INFERÊNCIA para o conteúdo da 1.174 até leitura do DOU oficial.
+
+### D-008 | 27/11/2026 | Etapa B — incluir hipótese H5 (risco de contraparte)
+- **Dúvida:** PLANO §3.1 só permite hipóteses extras "se houver evidência de problema relevante e pagante". Dois agentes independentes (ACL e concorrência) apontaram a crise de crédito das comercializadoras em 2026 como espaço em branco.
+- **Evidência:** ≥11 comercializadoras com > R$ 6 bi em dívidas; recuperações judiciais (Tradener R$ 1,7 bi, Electra R$ 1,3 bi, Elétron, IBS, 2W); liminar da Tradener que alterava a entrega aos clientes; geradores evitando comercializadoras independentes; CCEE migrando para monitoramento prudencial; GESEL: exposição líquida de um agente não é visível de fora; nenhuma ferramenta padronizada de risco de contraparte para o consumidor encontrada.
+- **Decisão:** incluir **H5 — monitor de risco de contraparte de fornecedores de energia** na comparação, como hipótese (dor CONFIRMADA por fatos públicos; disposição a pagar NÃO VERIFICADA). Lanço um agente de pesquisa dedicado (fontes de dados públicas, substitutos como birôs de crédito e CCEE, risco jurídico de publicar avaliações sobre empresas).
+- **Por quê:** é a única dor com evidência pública forte e recente que não colide com o comparador oficial nem exige habilitação CCEE.
+- **Descartado:** ignorar por não estar na lista original (o plano manda não presumir viabilidade da ideia inicial); adotá-la sem pesquisa (viés de novidade).
