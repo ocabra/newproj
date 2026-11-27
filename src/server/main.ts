@@ -1,12 +1,8 @@
 import { buildApp } from "./app.js";
-import { loadConfig } from "./config.js";
+import { loadConfig, loadDotEnv } from "./config.js";
 import { createDb } from "./db/client.js";
 
-try {
-  process.loadEnvFile(".env");
-} catch {
-  // Sem .env: usa apenas variáveis de ambiente (produção).
-}
+loadDotEnv();
 const config = loadConfig();
 const { db, pool } = createDb(config.DATABASE_URL);
 const app = await buildApp({ db, config, logger: true });

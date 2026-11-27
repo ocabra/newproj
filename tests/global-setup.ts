@@ -1,9 +1,10 @@
+import { loadDotEnv } from "../src/server/config.js";
 import pg from "pg";
 import { runMigrations } from "../src/server/db/migrate.js";
 
 /** Recria o banco de teste do zero e aplica as migrações. */
 export default async function setup(): Promise<void> {
-  process.loadEnvFile?.(".env");
+  loadDotEnv();
   const url = process.env.TEST_DATABASE_URL;
   if (!url) throw new Error("TEST_DATABASE_URL ausente (ver .env.example)");
   const client = new pg.Client({ connectionString: url });

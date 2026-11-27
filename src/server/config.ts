@@ -17,3 +17,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   }
   return parsed.data;
 }
+
+/** Carrega .env se existir (desenvolvimento). Em produção/CI as variáveis vêm do ambiente. */
+export function loadDotEnv(file = ".env"): void {
+  try {
+    process.loadEnvFile(file);
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+  }
+}

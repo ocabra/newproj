@@ -1,13 +1,13 @@
 import type { FastifyInstance, LightMyRequestResponse } from "fastify";
 import { eq, sql } from "drizzle-orm";
 import { buildApp } from "../src/server/app.js";
-import { loadConfig } from "../src/server/config.js";
+import { loadConfig, loadDotEnv } from "../src/server/config.js";
 import { createDb, type Db } from "../src/server/db/client.js";
 import { memberships, organizations, users } from "../src/server/db/schema.js";
 import { cnpjFromBase } from "../src/server/domain/cnpj.js";
 import { hashPassword } from "../src/server/security/passwords.js";
 
-process.loadEnvFile?.(".env");
+loadDotEnv();
 
 export interface Ctx {
   app: FastifyInstance;

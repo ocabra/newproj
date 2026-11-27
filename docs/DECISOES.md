@@ -123,3 +123,11 @@
 - **Importação de FA cria evento em rascunho, nunca publicado:** uma piora de faixa vira rascunho `leverage_band_worsened` para revisão humana (ADR-0006). A semântica das faixas da CCEE não foi verificada e aparece como ressalva no próprio evento.
 - **OpenAPI:** só `/api/v1` aparece. A API do portal (`/app`) fica oculta porque não é contrato público. Esquemas nomeados vão para `components`. Um teste falha se `openapi/openapi.yaml` divergir do gerado.
 - **Testes:** o ESLint permite `any` só em `tests/` e `e2e/`, para inspecionar JSON de resposta. O código de produção continua estrito.
+
+### D-020 | 27/11/2026 | Seed, backtest e operação
+- **CNPJs sintéticos com dígito verificador válido:** o sistema rejeita CNPJ inválido, então os dados de demonstração precisam de DV correto. Um CNPJ gerado pode coincidir por acaso com uma empresa real. Mitigação: todo nome leva "(sintética)", as fontes apontam para `exemplo.invalid` e o aviso está no cabeçalho do seed e no README. Descartado: CNPJs de raiz conhecida (como 00000000), que pertencem a empresas reais.
+- **Ferramenta do E1 em lógica pura com CLI:** `npm run backtest -- --fa … --eventos …`. Não depende de banco, para os fundadores rodarem sobre o CSV baixado à mão da CCEE. Os critérios de veredito (≤ 40% / ≥ 70%) estão no código e correspondem aos limiares de `06` (≤ 4/10 e ≥ 7/10), definidos antes do experimento. Sem argumentos, roda com amostras sintéticas, e a saída avisa que não vale como evidência.
+- **Backup/restauração:** `scripts/backup-restore-test.sh` faz dump, restaura num banco temporário e compara contagens de todas as tabelas. Foi preciso filtrar `SET transaction_timeout`, porque o `pg_dump` 18 da máquina emite um parâmetro que o servidor 16 não conhece.
+- **`.env` opcional:** `process.loadEnvFile` lança erro quando o arquivo não existe, o que quebraria a CI e o container. Centralizei em `loadDotEnv()`, que ignora apenas ENOENT.
+- **Migrações localizadas subindo a árvore até `drizzle/`:** o caminho relativo fixo funcionava em `src/`, mas não em `dist/node/`. Isso foi visto ao escrever o `Containerfile`, antes de causar falha.
+- **CI (GitHub Actions) escrita, mas não executada por mim:** não disparo workflows. Ela roda no próximo push; o resultado real ainda não foi verificado.

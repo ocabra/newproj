@@ -1,0 +1,5 @@
+supplier_cnpj,supplier_name,event_date,event_type,source_url
+90000001000129,Comercializadora Alfa (sintética),2026-05-20,judicial_recovery_filed,https://exemplo.invalid/evento-sintetico
+90000002000173,Comercializadora Beta (sintética),2026-05-29,judicial_recovery_filed,https://exemplo.invalid/evento-sintetico
+90000003000118,Varejista Gama (sintética),2026-04-22,judicial_recovery_filed,https://exemplo.invalid/evento-sintetico
+90000004000162,Comercializadora Delta (sintética),2026-07-06,judicial_recovery_filed,https://exemplo.invalid/evento-sintetico
