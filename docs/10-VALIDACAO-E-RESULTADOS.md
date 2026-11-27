@@ -19,6 +19,7 @@ Ambiente: Linux, Node 24.14.1, npm 11.11, PostgreSQL 16 (container Podman, porta
 | `npm run backtest` (amostras sintéticas) | 2 de 4 sinalizados com ≥ 60 dias → "inconclusivo" | **sintético, não é evidência** |
 | `python3 scripts/economia.py --atualizar` | tabelas de `05` regeneradas | |
 | `podman build -f Containerfile` | **exit 0**, imagem de 226 MB | ver §1.1 |
+| CI GitHub Actions (`ci.yml`) | **success** no commit `e561d1c` (run 45946525901) e em `71c1b6a` | a execução em `9da7c3c` falhou no lint (Prettier no README), corrigido em `71c1b6a` |
 
 ### 1.1 Imagem de container
 
@@ -26,7 +27,6 @@ Ambiente: Linux, Node 24.14.1, npm 11.11, PostgreSQL 16 (container Podman, porta
 
 ### 1.2 O que NÃO foi verificado
 
-- **CI do GitHub Actions** (`.github/workflows/ci.yml`): está escrita, mas o resultado da primeira execução não foi acompanhado por mim.
 - **Navegadores além do Chromium:** Firefox e Safari/WebKit não foram testados.
 - **Acessibilidade:**
   - **Verificado:** navegação por teclado no login (E2E), rótulos e landmarks (revisão de código), ausência de rolagem horizontal em 360 px.
