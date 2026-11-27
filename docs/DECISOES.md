@@ -88,3 +88,13 @@
 ### D-014 | 27/11/2026 | Pedidos aos fundadores sem perguntar
 - **Dúvida:** E2 (entrevistas), E3 (advogado) e E4 (contato com Abraceel/Risk3) exigem ação externa que eu não posso fazer (PLANO §1.8).
 - **Decisão:** registrei esses itens como experimentos com dono = fundadores, prazo e critério de sucesso em `06` §6, sem bloquear o protótipo. Não fiz contato com ninguém.
+
+### D-015 | 27/11/2026 | Fatia 1 — versões e ferramentas
+- **TypeScript 6.0.x, não 7.0:** o `typescript-eslint` 8.74 exige TypeScript < 6.1. Fixei `~6.0.3`, a versão mais recente compatível.
+- **PostgreSQL 16 em container na porta 55432:** já existe um PostgreSQL do sistema na 5432. Não usar o banco do sistema evita interferir em dados da máquina. A porta alternativa evita conflito.
+- **`podman compose`:** o Docker da máquina não tem o plugin `compose`, mas `podman-compose` está instalado. O `compose.yaml` é padrão e funciona com os dois.
+- **`npm audit`:** 4 vulnerabilidades moderadas, todas em `esbuild` antigo dentro do `drizzle-kit`, que só roda em desenvolvimento para gerar migrações. Não vão para produção. Aceito e registrado. A correção exige `--force`, com mudança incompatível no drizzle-kit.
+- **Importação CSV tudo-ou-nada:** um arquivo com qualquer linha inválida é rejeitado inteiro, com a lista de erros por linha e campo. Por quê: importação parcial deixa a carteira num estado que a gestora não consegue conferir.
+- **CSV com `;` aceita vírgula decimal:** é o formato padrão do Excel em pt-BR. Com `,`, só ponto decimal.
+- **Volume > 1.000 MWm é rejeitado com a mensagem "parece estar em MWh":** é o erro de unidade mais provável (PLANO §1.6). Nenhum consumidor individual do ACL chega perto de 1 GW médio.
+- **Horas restantes = dias civis × 24:** o Brasil não tem horário de verão desde 2019. Se voltar a ter, o erro máximo é de 1 h por ano de contrato. Está documentado em `exposure.ts`.

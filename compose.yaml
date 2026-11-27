@@ -1,0 +1,20 @@
+# Dependências de desenvolvimento. Uso: `podman compose up -d` ou `docker compose up -d`
+services:
+  db:
+    image: docker.io/library/postgres:16-alpine
+    environment:
+      POSTGRES_USER: radar
+      POSTGRES_PASSWORD: radar
+      POSTGRES_DB: radar
+    ports:
+      - "55432:5432"
+    volumes:
+      - radar-db:/var/lib/postgresql/data
+      - ./scripts/db-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U radar -d radar"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+volumes:
+  radar-db:
